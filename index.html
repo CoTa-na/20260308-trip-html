@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>NOGUCHI FAMILY 旅のしおり</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: #fdf6f6;
+            color: #444;
+            transition: all 0.3s ease;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior-y: none;
+        }
+        .paper {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(244, 143, 177, 0.15);
+            overflow: hidden;
+            border: 1px solid #fce4ec;
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 10px;
+            bottom: 0;
+            width: 2px;
+            background: #f8bbd0;
+        }
+        .dot {
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border: 4px solid #f48fb1;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        .dot-day2 { border-color: #4db6ac; }
+        .timeline-line-day2::before { background: #b2dfdb; }
+
+        /* ページ切り替え */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            -webkit-overflow-scrolling: touch;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ナビゲーション */
+        nav {
+            background-color: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+        .nav-btn {
+            color: #999;
+            transition: all 0.2s ease;
+        }
+        .nav-btn.active {
+            color: #f48fb1;
+            transform: scale(1.1);
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: #f1f1f1;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        #toast {
+            visibility: hidden;
+            min-width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 12px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 100px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="p-0 pb-24">
+
+    <div id="toast">コピーしました！</div>
+
+    <!-- ナビゲーションバー -->
+    <nav class="fixed bottom-0 left-0 right-0 border-t border-rose-100 px-6 py-3 flex justify-around items-center z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+        <button type="button" id="nav-itinerary" onclick="showPage('itinerary')" class="nav-btn active flex flex-col items-center gap-1 outline-none">
+            <span class="text-xl">📅</span>
+            <span class="text-[10px] font-bold">しおり</span>
+        </button>
+        <button type="button" id="nav-map" onclick="showPage('map')" class="nav-btn flex flex-col items-center gap-1 outline-none">
+            <span class="text-xl">📍</span>
+            <span class="text-[10px] font-bold">地図</span>
+        </button>
+        <button type="button" id="nav-info" onclick="showPage('info')" class="nav-btn flex flex-col items-center gap-1 outline-none">
+            <span class="text-xl">🏨</span>
+            <span class="text-[10px] font-bold">連絡先</span>
+        </button>
+    </nav>
+
+    <!-- しおりページ -->
+    <div id="itinerary" class="page active p-4">
+        <div class="paper mb-6 relative overflow-hidden">
+            <div class="bg-gradient-to-br from-rose-200 to-orange-100 p-8 text-center">
+                <p class="text-rose-500 font-bold tracking-widest text-xs mb-1 uppercase">Spring Family Trip</p>
+                <h1 class="text-2xl font-bold text-gray-800 leading-tight">NOGUCHI FAMILY<br>山梨・石和温泉への旅</h1>
+                <div class="mt-4 inline-block px-6 py-1.5 bg-white/90 rounded-full text-sm font-bold shadow-sm text-rose-400">
+                    3月28日(土) - 29日(日)
+                </div>
+            </div>
+        </div>
+
+        <!-- 1日目 -->
+        <div class="mb-10">
+            <h2 class="inline-flex items-center gap-2 px-4 py-1.5 bg-rose-400 text-white rounded-r-full font-bold text-sm -ml-4 mb-4 shadow-md">
+                <span>DAY 1</span>
+                <span class="text-xs opacity-80">3/28 SAT</span>
+            </h2>
+            <div class="ml-2 space-y-6 relative timeline-line">
+                <div class="relative pl-10"><div class="dot"></div><p class="text-xs font-bold text-rose-400">09:00</p><p class="font-bold text-gray-700">東松山駅西口 出発 🚌</p></div>
+                <div class="relative pl-10"><div class="dot" style="border-color: #90caf9;"></div><p class="text-xs font-bold text-blue-400">10:30</p><p class="font-bold text-gray-700 text-sm">談合坂SA（休憩）☕️</p></div>
+                <div class="relative pl-10"><div class="dot"></div><p class="text-xs font-bold text-rose-400">11:45</p><p class="font-bold text-green-700">音楽と森の美術館 見学 🏰</p></div>
+                <div class="relative pl-10"><div class="dot" style="border-color: #ffb74d;"></div><p class="text-xs font-bold text-orange-400">13:00</p><p class="font-bold text-gray-700">昼食タイム 🍴</p></div>
+                <div class="relative pl-10"><div class="dot" style="border-color: #9c27b0;"></div><p class="text-xs font-bold text-purple-400">14:40</p><p class="font-bold text-purple-800">シャトー勝沼 🍇</p></div>
+                <div class="relative pl-10">
+                    <div class="dot"></div>
+                    <p class="text-xs font-bold text-rose-400">16:30</p>
+                    <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
+                        <p class="font-bold text-rose-700 text-lg">石和温泉 到着・宿泊 ♨️</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2日目 -->
+        <div class="mb-8">
+            <h2 class="inline-flex items-center gap-2 px-4 py-1.5 bg-[#26a69a] text-white rounded-r-full font-bold text-sm -ml-4 mb-4 shadow-md">
+                <span>DAY 2</span>
+                <span class="text-xs opacity-80">3/29 SUN</span>
+            </h2>
+            <div class="ml-2 space-y-6 relative timeline-line timeline-line-day2">
+                <div class="relative pl-10"><div class="dot dot-day2"></div><p class="text-xs font-bold text-[#26a69a]">MORNING</p><p class="font-bold text-gray-700">ホテル出発 〜 桔梗屋 🍡</p></div>
+                <div class="relative pl-10"><div class="dot dot-day2"></div><p class="text-xs font-bold text-[#26a69a]">10:40</p><p class="font-bold text-gray-700">富士山ミュージアム 見学 🗻</p></div>
+                <div class="relative pl-10"><div class="dot" style="border-color: #ffb74d;"></div><p class="text-xs font-bold text-orange-400">12:00</p><p class="font-bold text-orange-600">ほうとう不動（昼食）🍜</p></div>
+                <div class="relative pl-10"><div class="dot dot-day2"></div><p class="text-xs font-bold text-[#26a69a]">13:20</p><p class="font-bold text-[#00796b]">リニア見学センター 🚅</p></div>
+                <div class="relative pl-10">
+                    <div class="dot dot-day2"></div>
+                    <p class="text-xs font-bold text-[#26a69a]">17:00</p>
+                    <div class="bg-teal-50 p-3 rounded-xl border border-teal-100">
+                        <p class="font-bold text-teal-700 text-lg">東松山駅西口 到着 🏠</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 地図ページ -->
+    <div id="map" class="page p-4">
+        <h2 class="text-xl font-bold mb-4 text-center text-gray-700">📍 旅行ルート・地図</h2>
+        
+        <div class="paper p-4 mb-6">
+            <h3 class="font-bold text-[10px] mb-4 text-rose-500 uppercase tracking-widest flex items-center gap-2">
+                <span class="w-1.5 h-4 bg-rose-400 rounded-full"></span>
+                スポットを選択
+            </h3>
+            
+            <div class="space-y-2 max-h-[35vh] overflow-y-auto pr-1">
+                <p class="text-[10px] font-bold text-gray-300 mb-2 mt-2">DAY 1</p>
+                <button type="button" onclick="updateMap('談合坂SA 下り', '10:30 談合坂SA')" class="w-full flex items-start gap-3 p-3 rounded-xl active:bg-blue-50 text-left border border-transparent active:border-blue-100">
+                    <span class="bg-blue-100 text-blue-500 w-6 h-6 flex items-center justify-center rounded-full font-bold shrink-0">1</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-700 text-sm">談合坂SA</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">10:30 到着（休憩）</p>
+                    </div>
+                </button>
+                <button type="button" onclick="updateMap('河口湖音楽と森の美術館', '11:45 音楽と森の美術館')" class="w-full flex items-start gap-3 p-3 rounded-xl active:bg-rose-50 text-left border border-transparent active:border-rose-100">
+                    <span class="bg-rose-100 text-rose-500 w-6 h-6 flex items-center justify-center rounded-full font-bold shrink-0">2</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-700 text-sm">音楽と森の美術館</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">11:45 到着（見学）</p>
+                    </div>
+                </button>
+                <button type="button" onclick="updateMap('シャトー勝沼', '14:40 シャトー勝沼')" class="w-full flex items-start gap-3 p-3 rounded-xl active:bg-purple-50 text-left border border-transparent active:border-purple-100">
+                    <span class="bg-purple-100 text-purple-500 w-6 h-6 flex items-center justify-center rounded-full font-bold shrink-0">3</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-700 text-sm">シャトー勝沼</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">14:40 到着（お買物）</p>
+                    </div>
+                </button>
+                <button type="button" onclick="updateMap('山梨県笛吹市石和町川中島192 ホテルふじ', '宿泊先: ホテルふじ')" class="w-full flex items-start gap-3 p-3 rounded-xl active:bg-rose-50 text-left border border-transparent active:border-rose-100">
+                    <span class="bg-rose-100 text-rose-500 w-6 h-6 flex items-center justify-center rounded-full font-bold shrink-0">4</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-700 text-sm">ホテルふじ</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">16:30 到着（宿泊先）</p>
+                    </div>
+                </button>
+
+                <p class="text-[10px] font-bold text-gray-300 mb-2 mt-4 border-t pt-4">DAY 2</p>
+                <button type="button" onclick="updateMap('桔梗屋 本社工場アウトレット', 'AM 桔梗屋アウトレット')" class="w-full flex items-start gap-3 p-3 rounded-xl active:bg-teal-50 text-left border border-transparent active:border-teal-100">
+                    <span class="bg-teal-100 text-teal-500 w-6 h-6 flex items-center justify-center rounded-full font-bold shrink-0">5</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-700 text-sm">桔梗屋アウトレット</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">お土産選び</p>
+                    </div>
+                </button>
+                <button type="button" onclick="updateMap('富士山ミュージアム', '10:40 富士山ミュージアム')" class="w-full flex items-start gap-3 p-3 rounded-xl active:bg-teal-50 text-left border border-transparent active:border-teal-100">
+                    <span class="bg-teal-100 text-teal-500 w-6 h-6 flex items-center justify-center rounded-full font-bold shrink-0">6</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-700 text-sm">富士山ミュージアム</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">10:40 到着（見学）</p>
+                    </div>
+                </button>
+                <button type="button" onclick="updateMap('ほうとう不動 河口湖北本店', '12:00 ほうとう不動')" class="w-full flex items-start gap-3 p-3 rounded-xl active:bg-orange-50 text-left border border-transparent active:border-orange-100">
+                    <span class="bg-orange-100 text-orange-500 w-6 h-6 flex items-center justify-center rounded-full font-bold shrink-0">7</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-700 text-sm">ほうとう不動</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">12:00 到着（昼食）</p>
+                    </div>
+                </button>
+                <button type="button" onclick="updateMap('山梨県立リニア見学センター', '13:20 リニア見学センター')" class="w-full flex items-start gap-3 p-3 rounded-xl active:bg-teal-50 text-left border border-transparent active:border-teal-100">
+                    <span class="bg-teal-100 text-teal-500 w-6 h-6 flex items-center justify-center rounded-full font-bold shrink-0">8</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-700 text-sm">リニア見学センター</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">13:20 到着（見学）</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div class="paper overflow-hidden mb-4 shadow-lg border-2 border-rose-100">
+            <div class="bg-rose-400 px-4 py-2 text-white text-[10px] font-bold flex justify-between items-center">
+                <span id="map-title">📍 ホテルふじ (宿泊先)</span>
+                <span>Google Maps</span>
+            </div>
+            <div class="map-container">
+                <iframe id="gmap-iframe" src="https://www.google.com/maps?output=embed&q=山梨県笛吹市石和町川中島192 ホテルふじ&z=14" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- 連絡先ページ -->
+    <div id="info" class="page p-4">
+        <h2 class="text-xl font-bold mb-4 text-center text-gray-700">🏨 宿泊・連絡先</h2>
+        <div class="paper p-6 space-y-6">
+            <div class="space-y-4">
+                <p class="font-bold text-xl text-gray-800">ホテルふじ</p>
+                <div class="bg-gray-50 p-3 rounded-xl flex items-center justify-between gap-2 border">
+                    <div class="overflow-hidden"><p class="text-[10px] text-gray-400 font-bold uppercase">Address</p><p class="text-sm text-gray-600 truncate">山梨県笛吹市石和町川中島192</p></div>
+                    <button type="button" onclick="copyToClipboard('山梨県笛吹市石和町川中島192', '住所')" class="bg-white border text-rose-400 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">コピー</button>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-xl flex items-center justify-between gap-2 border">
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase">Tel</p><p class="text-lg font-bold text-gray-700">055-262-4524</p></div>
+                    <button type="button" onclick="copyToClipboard('055-262-4524', '電話番号')" class="bg-white border text-rose-400 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">コピー</button>
+                </div>
+                <div class="pt-4">
+                    <a href="https://www.hotel-fuji.jp/" target="_blank" class="block w-full text-center bg-rose-400 text-white py-3 rounded-xl font-bold shadow-md active:bg-rose-500">公式サイトへ移動 ↗️</a>
+                </div>
+            </div>
+            <div class="pt-6 border-t">
+                <p class="font-bold text-gray-700">広栄交通バス</p>
+                <p class="text-xs text-gray-500 mt-2">団体：NOGUCHI FAMILY / 12名</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage('itinerary');
+        });
+
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            const navBtns = document.querySelectorAll('.nav-btn');
+            
+            pages.forEach(p => {
+                p.classList.remove('active');
+                p.style.display = 'none';
+            });
+            
+            const targetPage = document.getElementById(pageId);
+            if(targetPage) {
+                targetPage.classList.add('active');
+                targetPage.style.display = 'block';
+            }
+
+            navBtns.forEach(b => b.classList.remove('active'));
+            const targetBtn = document.getElementById('nav-' + pageId);
+            if(targetBtn) targetBtn.classList.add('active');
+
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 50);
+        }
+
+        function updateMap(query, title) {
+            const iframe = document.getElementById('gmap-iframe');
+            const mapTitle = document.getElementById('map-title');
+            if(iframe) {
+                iframe.src = "https://www.google.com/maps?output=embed&q=" + encodeURIComponent(query) + "&z=15";
+            }
+            if(mapTitle) {
+                mapTitle.textContent = "📍 " + title;
+            }
+        }
+
+        function copyToClipboard(text, label) {
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            temp.style.position = 'fixed';
+            temp.style.left = '-9999px';
+            temp.style.top = '0';
+            document.body.appendChild(temp);
+            temp.focus();
+            temp.select();
+            
+            try {
+                document.execCommand('copy');
+                const toast = document.getElementById('toast');
+                toast.textContent = label + "をコピーしました";
+                toast.classList.add("show");
+                setTimeout(() => { toast.classList.remove("show"); }, 2000);
+            } catch (err) {}
+            
+            document.body.removeChild(temp);
+        }
+    </script>
+</body>
+</html>
